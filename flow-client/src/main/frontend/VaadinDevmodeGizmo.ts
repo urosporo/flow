@@ -916,10 +916,10 @@ export class VaadinDevmodeGizmo extends LitElement {
       >
         <div class="message-content">
           <div class="message-heading">${messageObject.message}</div>
-          <div class="message-details" ?hidden="${!messageObject.details && !messageObject.link}">
+          <div class="message-details" ?hidden=${!messageObject.details && !messageObject.link}>
             ${messageObject.details ? html`<p>${messageObject.details}</p>` : ''}
             ${messageObject.link
-              ? html`<a class="ahreflike" href="${messageObject.link}" target="_blank">Read more</a>`
+              ? html`<a class="ahreflike" href=${messageObject.link} target="_blank">Read more</a>`
               : ''}
           </div>
           ${messageObject.persistentId
@@ -948,8 +948,7 @@ export class VaadinDevmodeGizmo extends LitElement {
               ?disabled=${(this.frontendStatus === ConnectionStatus.UNAVAILABLE ||
                 this.frontendStatus === ConnectionStatus.ERROR) &&
               (this.javaStatus === ConnectionStatus.UNAVAILABLE || this.javaStatus === ConnectionStatus.ERROR)}
-              ?checked="${this.frontendStatus === ConnectionStatus.ACTIVE ||
-              this.javaStatus === ConnectionStatus.ACTIVE}"
+              ?checked=${this.frontendStatus === ConnectionStatus.ACTIVE || this.javaStatus === ConnectionStatus.ACTIVE}
               @change=${(e: any) => this.setActive(e.target.checked)}
             />
             <span class="slider"></span>
