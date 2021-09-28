@@ -49,12 +49,17 @@ public class FeatureFlags implements Serializable {
     public static final Feature EXAMPLE = new Feature(
             "Example feature. Will be removed once the first real feature flag is added",
             "exampleFeatureFlag", "https://github.com/vaadin/flow/pull/12004");
+    public static final Feature VITE_DEV = new Feature(
+            "Use Vite for frontend in development mode", "viteForFrontendBuild",
+            "https://github.com/vaadin/platform/issues/2448");
+
     private static List<Feature> features = new ArrayList<>();
 
     private static File propertiesFolder = null;
 
     static {
         features.add(EXAMPLE);
+        features.add(VITE_DEV);
         loadProperties();
     }
 

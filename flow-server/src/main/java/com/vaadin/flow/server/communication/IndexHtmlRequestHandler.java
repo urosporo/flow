@@ -29,11 +29,16 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.experimental.FeatureFlags;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.di.Lookup;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.internal.BootstrapHandlerHelper;
 import com.vaadin.flow.internal.BrowserLiveReload;
 import com.vaadin.flow.internal.BrowserLiveReloadAccessor;
+import com.vaadin.flow.internal.DevModeHandler;
+import com.vaadin.flow.internal.DevModeHandlerManager;
+import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.UsageStatisticsExporter;
 import com.vaadin.flow.internal.springcsrf.SpringCsrfTokenUtil;
 import com.vaadin.flow.server.AppShellRegistry;
@@ -45,6 +50,7 @@ import com.vaadin.flow.server.VaadinResponse;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.frontend.FrontendUtils;
+import com.vaadin.flow.server.startup.ApplicationConfiguration;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
@@ -260,7 +266,11 @@ public class IndexHtmlRequestHandler extends JavaScriptBootstrapHandler {
             throws IOException {
         String index = FrontendUtils.getIndexHtmlContent(service);
         if (index != null) {
-            return Jsoup.parse(index);
+            Document indexHtmlDocument = Jsoup.parse(index);
+            if (FeatureFlags.isEnabled(FeatureFlags.VITE_DEV)) {
+                modifyIndexHtmlForVite(service, indexHtmlDocument);
+            }
+            return indexHtmlDocument;
         }
         String frontendDir = FrontendUtils
                 .getProjectFrontendDir(service.getDeploymentConfiguration());
@@ -278,6 +288,22 @@ public class IndexHtmlRequestHandler extends JavaScriptBootstrapHandler {
                         + "using client side bootstrapping.",
                 indexHtmlFilePath);
         throw new IOException(message);
+    }
+
+    private static void modifyIndexHtmlForVite(VaadinService service,
+            Document indexHtmlDocument) {
+        Optional<DevModeHandler> devModeHandler = DevModeHandlerManager
+                .getDevModeHandler(service);
+        if (devModeHandler.isPresent()) {
+            indexHtmlDocument.head()
+                    .appendChild(new Element("script").attr("type", "module")
+                            .attr("src", "VAADIN/generated/vaadin.ts"));
+
+            // Workaround for https://github.com/vitejs/vite/issues/5142
+            indexHtmlDocument.head().prepend(
+                    "<script type='text/javascript'>window.JSCompiler_renameProperty = function(a) { return a;}</script>");
+
+        }
     }
 
     // Holds parsed index.html to avoid re-parsing on every request in
