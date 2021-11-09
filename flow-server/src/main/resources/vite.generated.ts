@@ -10,6 +10,7 @@ import * as net from 'net';
 import { processThemeResources } from '@vaadin/application-theme-plugin/theme-handle.js';
 import settings from '#settingsImport#';
 import { UserConfigFn, defineConfig, HtmlTagDescriptor, mergeConfig } from 'vite';
+import { VitePWA, Options as VitePWAOptions } from 'vite-plugin-pwa';
 
 import brotli from 'rollup-plugin-brotli';
 
@@ -69,6 +70,14 @@ function runWatchDog(watchDogPort) {
   client.connect(watchDogPort, 'localhost');
 }
 
+const pwaConfig: Partial<VitePWAOptions> = {
+
+  mode: process.env.mode,
+  srcDir: settings.clientServiceWorkerSourceDir,
+  filename: settings.serviceWorkerSource,
+  strategies: 'generateSW',
+}
+
 export const vaadinConfig: UserConfigFn = (env) => {
   const devMode = env.mode === 'development';
 
@@ -97,6 +106,7 @@ export const vaadinConfig: UserConfigFn = (env) => {
     },
     plugins: [
       !devMode && brotli(),
+      settings.pwaEnabled && VitePWA(pwaConfig),
       {
         name: 'custom-theme',
         config() {

@@ -252,8 +252,10 @@ public class StaticFileServer implements StaticFileHandler {
                     .getResource(VAADIN_WEBAPP_RESOURCES + "VAADIN/static/"
                             + filenameWithPath.replaceFirst("^/", ""));
 
-        } else if (!"/index.html".equals(filenameWithPath)) {
+        } else if (!"/index.html".equals(filenameWithPath)
+                && !"/manifest.webmanifest".equals(filenameWithPath)) {
             // index.html needs to be handled by IndexHtmlRequestHandler
+            // manifest.webmanifest is handled by PWAHandler
             resourceUrl = vaadinService.getClassLoader()
                     .getResource(VAADIN_WEBAPP_RESOURCES
                             + filenameWithPath.replaceFirst("^/", ""));
