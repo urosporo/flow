@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -287,6 +288,19 @@ public abstract class AbstractDevServerRunner implements DevModeHandler {
     protected abstract List<String> getServerStartupCommand(String nodeExec);
 
     /**
+     * Defines the environment variables to use when starting the dev server.
+     * 
+     * @param environment
+     *            the environment variables to use
+     */
+    protected void updateServerStartupEnvironment(
+            Map<String, String> environment) {
+        environment.put("watchDogPort",
+                Integer.toString(getWatchDog().getWatchDogPort()));
+
+    }
+
+    /**
      * Gets a pattern to match with the output to determine that the server has
      * started successfully.
      */
@@ -341,8 +355,9 @@ public abstract class AbstractDevServerRunner implements DevModeHandler {
         }
 
         processBuilder.command(command);
-        processBuilder.environment().put("watchDogPort",
-                Integer.toString(getWatchDog().getWatchDogPort()));
+
+        Map<String, String> environment = processBuilder.environment();
+        updateServerStartupEnvironment(environment);
 
         try {
             Process process = processBuilder.redirectErrorStream(true).start();

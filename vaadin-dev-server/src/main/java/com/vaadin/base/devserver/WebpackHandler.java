@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
@@ -114,6 +115,13 @@ public final class WebpackHandler extends AbstractDevServerRunner {
         }
 
         return command;
+    }
+
+    @Override
+    protected void updateServerStartupEnvironment(
+            Map<String, String> environment) {
+        super.updateServerStartupEnvironment(environment);
+        environment.put("NODE_OPTIONS", "--openssl-legacy-provider");
     }
 
     @Override
